@@ -1,2 +1,6 @@
 # PythonTester_App
-Note this is WIP. This is my first App build in Python, using Kivy and re-usable code from other programs that I previously created.
+Note this app is a work in progress. And will include improvements and functionality in the future.
+## Instructions
+- Kivy required (2.1.0).
+- Run main.py
+- Enjoy!
