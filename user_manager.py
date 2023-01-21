@@ -16,6 +16,8 @@ class UserManager(UserTable):
     # -- Control user entries
     __new_user_status = False
     __new_password_status = False
+    # Current user:
+    __current_user = ''
 
     def __init__(self):
         super().__init__()
@@ -37,7 +39,13 @@ class UserManager(UserTable):
 
         # Only proceed if the user exists:
         if username in self.__get_users_available():
-            return True if self.check_login_details_correct(username=username, password=password) else False
+            if self.check_login_details_correct(username=username, password=password):
+                # Log correct
+                self.set_current_user(username)
+                return True
+
+            else:
+                return False
 
         # Default
         return False
@@ -164,6 +172,16 @@ class UserManager(UserTable):
     def get_new_password_status(self):
         """Return the status of new password (if correct or not)."""
         return self.__new_password_status
+
+    def set_current_user(self, current_user: str = ''):
+        """Set the current logged user.
+        :param current_user: str. Current user logged in the system.
+        """
+        self.__current_user = current_user
+
+    def get_current_user(self):
+        """Get current user."""
+        return self.__current_user
 
     def clean_status(self):
         """Clean User and Password statuses."""

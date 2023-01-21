@@ -1,9 +1,10 @@
 # Kivy visual format. 2023 JCA.
-#:kivy 2.1.0
+#:kivy 2.2.0
 #:import hex kivy.utils.get_color_from_hex
 
 #:set clr_blue_med hex('#178CA4')
 #:set clr_blue_fade hex('#6c9aa3')
+#:set clr_blue_clear 0.04, 0.58, 0.68, 1
 #:set clr_body hex('#d8dbdd')
 #:set font_title 'data/fonts/8-bit-operator/8bitOperatorPlus-Regular.ttf'
 #:set font_button_size 15
@@ -17,6 +18,43 @@
         Rectangle:
             pos: self.pos
             size: self.size
+
+<NavBar@ActionBar>:
+    pos_hint: {'top': 1}
+    # Note it needs a white image to work.
+    background_image: 'data/background/white.png'
+    background_color: clr_blue_clear
+    ActionView:
+        use_separator: True
+        ActionPrevious:
+            title: 'Python Tester'
+            app_icon: 'data/background/jca.png'  # Me
+            with_previous: False
+        ActionOverflow:
+        ActionGroup:
+            text: 'More'
+            mode: 'spinner'
+            ActionButton:
+                text: 'Menu'
+                background_color: clr_blue_clear
+                background_normal: ''
+                on_press:
+                    app.go_to_menu()
+            ActionButton:
+                text: 'Stats'
+                background_color: clr_blue_clear
+            ActionButton:
+                text: 'Info'
+                background_color: clr_blue_clear
+            ActionButton:
+                text: 'Log Off'
+                background_color: clr_blue_clear
+                on_press:
+                    app.go_to_login()
+            ActionButton:
+                text: 'Exit'
+                background_color: clr_blue_clear
+                on_release: app.close_application()
 
 # Lower bar:
 <LowerBar@BoxLayout>:
@@ -37,17 +75,6 @@
         font_size: 23
         font_name: font_title
 
-    Button:
-        text: 'x'
-        font_size: 15
-        background_color: clr_blue_fade
-        background_normal: ''  # Delete default background
-        size_hint_x: .05
-        size_hint_y: .7
-        valign: 'center'
-        halign: 'center'
-        on_release: app.close_application()
-
 <LogInWindow>:
     # properties
     user_id: user_id
@@ -58,6 +85,9 @@
     spacing: 10
     distance_x: self.size[0]
 
+    CanvasBackground
+    NavBar
+
     # Log on manager =======
     BoxLayout:
         orientation: 'vertical'
@@ -66,7 +96,7 @@
         spacing: 10
 
         Label:  # Needed to align the items in the center
-            text: 'App Mk.I'
+            text: 'Log In to Python Tester'
             bold: True
             font_size: 40
             font_name: font_title
@@ -117,12 +147,11 @@
                 font_size: 15
                 padding: 5, 5
                 on_press:
-                    root.manager.transition.direction ='right'
-                    root.manager.current = 'new_user'
                     root.message_to_users = ''
+                    app.go_to_new_user()
 
         Label:  # Needed to align the items in the center
-            text: root.message_to_users
+            text: ''  # root.message_to_users
             bold: True
             font_size: 25
             font_name: font_title
@@ -141,6 +170,7 @@
     distance_x: self.size[0]
 
     CanvasBackground
+    NavBar
 
     # Log on manager =======
     BoxLayout:  # Main box
@@ -157,14 +187,6 @@
             orientation: 'vertical'
             padding: 20
             spacing: 10
-            # DELETE AFTER TESTS ================================
-            canvas:
-                Color:
-                    rgb: .3, .3, .3
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            # DELETE AFTER TESTS ================================
 
             BoxLayout:
                 orientation: 'horizontal'
@@ -231,14 +253,6 @@
             spacing: 10
             # Change padding to center the layout
             padding: create_new_user.distance_x/4, 10
-            # DELETE AFTER TESTS ================================
-            canvas:
-                Color:
-                    rgb: 1, 0, 1, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            # DELETE AFTER TESTS ================================
 
             Button:
                 text: 'Create User'
@@ -256,14 +270,6 @@
                 on_press: root.go_back_login()
         Label:
             # Dummy needed
-            # DELETE AFTER TESTS ================================
-            canvas:
-                Color:
-                    rgb: 0, 1, 1, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            # DELETE AFTER TESTS ================================
 
     LowerBar:
         # Used in all widgets.
@@ -271,12 +277,13 @@
 <Menu>:
     id: menu
     CanvasBackground
+    NavBar
 
     # Main Menu =======
     BoxLayout:
         orientation: 'vertical'
         Label:
-            text: 'Main Menu'
+            text: root.welcome_message
             bold: True
             font_size: 40
             font_name: font_title
@@ -285,12 +292,6 @@
         Label:
             text: 'Work in progress'
             font_size: font_normal
-
-        Button:
-            text: 'Log off'
-            on_press:
-                root.manager.transition.direction ='right'
-                root.manager.current = 'login'
 
     LowerBar:
         # Used in all widgets.

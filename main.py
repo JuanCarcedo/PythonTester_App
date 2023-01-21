@@ -17,7 +17,7 @@ import kivy
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.properties import ObjectProperty, StringProperty
-from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
+from kivy.uix.screenmanager import Screen, ScreenManager, SwapTransition
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 # Other imports
@@ -26,7 +26,7 @@ from user_manager import UserManager
 
 
 # CONSTANTS or Requirements
-kivy.require('2.1.0')  # kivy requirement
+kivy.require('2.2.0')  # kivy requirement
 # Windows minimum parameters:
 Window.minimum_height, Window.minimum_width = (config.MINIMUM_HEIGHT, config.MINIMUM_WIDTH)
 
@@ -34,9 +34,15 @@ Window.minimum_height, Window.minimum_width = (config.MINIMUM_HEIGHT, config.MIN
 class Menu(Screen):
     """ Home. Landing page after log in correct."""
     # Kivy properties.
+    welcome_message = StringProperty()
+    WELCOME = 'Welcome '
 
     def __init__(self, **kwargs):
         super(Menu, self).__init__(**kwargs)
+
+    def set_welcome_message(self):
+        """Set the welcome message based on current user."""
+        self.welcome_message = f'Welcome {user_manager.get_current_user()}!'
 
 
 class UserCreation(Screen):
@@ -110,8 +116,6 @@ class UserCreation(Screen):
     def go_back_login(self):
         """Go back to log in (always will clean the fields)."""
         self.__clean_fields()
-        # Change transition
-        self.manager.transition.direction = 'left'
         # Change screen to home/menu
         self.manager.current = 'login'
 
@@ -142,7 +146,7 @@ class LogInWindow(Screen):
     # Kivy properties.
     user_id = ObjectProperty(None)
     user_password = ObjectProperty(None)
-    message_to_users = StringProperty()  # Warning messages.
+    # Not needed for now/ message_to_users = StringProperty()  # Warning messages.
 
     def __init__(self, **kwargs):
         super(LogInWindow, self).__init__(**kwargs)
@@ -161,20 +165,18 @@ class LogInWindow(Screen):
         if user_manager.log_in(username=self.user_id.text, password=self.user_password.text):
             # Pop up with confirmation:
             ProgramTesterApp.pop_ups_generator(title_pop='Log In', text_pop='Success! Welcome')
-
             self.clear_fields()
-            # Change transition
-            self.manager.transition.direction = 'left'
             # Change screen to home/menu
-            self.manager.current = 'menu'
+            main_manager.go_to_menu()
 
         else:
             # Incorrect details
-            self.message_to_users = 'Wrong details.'
+            # Pop up with:
+            ProgramTesterApp.pop_ups_generator(title_pop='Wrong', text_pop='Wrong details.')
 
     def clear_fields(self):
         """Clear all fields."""
-        self.user_id.text, self.user_password.text, self.message_to_users = '', '', ''
+        self.user_id.text, self.user_password.text = '', ''
 
 
 class ProgramTesterApp(App):
@@ -183,6 +185,7 @@ class ProgramTesterApp(App):
     This class controls the movement between screens and parts of
     the app.
     """
+
     def build(self):
         """
         You should use this one to return the Root Widget.
@@ -197,8 +200,8 @@ class ProgramTesterApp(App):
         # ===================================================
 
         # Create transition between windows
-        self.transition = SlideTransition(duration=.4)
-        root = ScreenManager(transition=self.transition)
+        # self.transition = SlideTransition(duration=.4)
+        root = ScreenManager(transition=SwapTransition())
 
         # Add widgets to main root:
         root.add_widget(self.login_to_system)  # Log in page
@@ -207,6 +210,22 @@ class ProgramTesterApp(App):
         root.add_widget(self.menu)  # App landing page when log in
 
         return root
+
+    def set_root_current(self, new: str = 'login'):
+        self.root.current = new
+
+    def go_to_menu(self):
+        """Go to menu."""
+        self.root.screens[2].set_welcome_message()
+        self.set_root_current('menu')
+
+    def go_to_login(self):
+        """Go to log in."""
+        self.set_root_current()
+
+    def go_to_new_user(self):
+        """Go to new user."""
+        self.set_root_current('new_user')
 
     def close_application(self):
         """Close the app and close the window."""
@@ -230,4 +249,5 @@ class ProgramTesterApp(App):
 
 if __name__ == '__main__':
     user_manager = UserManager()  # Management to User access
-    ProgramTesterApp().run()  # App
+    main_manager = ProgramTesterApp()
+    main_manager.run()  # App
