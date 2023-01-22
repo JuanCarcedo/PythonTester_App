@@ -26,7 +26,7 @@ from user_manager import UserManager
 
 
 # CONSTANTS or Requirements
-kivy.require('2.2.0')  # kivy requirement
+kivy.require('2.1.0')  # kivy requirement
 # Windows minimum parameters:
 Window.minimum_height, Window.minimum_width = (config.MINIMUM_HEIGHT, config.MINIMUM_WIDTH)
 
